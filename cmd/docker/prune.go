@@ -32,7 +32,7 @@ func PruneOldImages(service config.Service) error {
 			log.Printf("No dangling images found for %s", imageName)
 			return nil
 		}
-		// Remove newest image
+		// Remove newest images from the list, so we keep the oldest images
 		imageIds = slices.Delete(imageIds, 0, config.GetNumberOfImagesToKeep()-1)
 
 		for _, imageId := range imageIds {

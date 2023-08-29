@@ -18,6 +18,11 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("-------------------- " + r.URL.Path)
+	defer func() {
+		fmt.Println("--------------------")
+	}()
+
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodPost {
@@ -36,7 +41,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		httpResponse(http.StatusOK, fmt.Sprintf("Service %s upgraded successfully", serviceName), &w)
 	} else {
-		httpResponse(http.StatusInternalServerError, err.Error(), &w)
+		httpResponse(http.StatusInternalServerError, "An error occured while upgrading your service. Check the server logs.", &w)
 		log.Printf("Error updating %s: %s", serviceName, err.Error())
 		return
 	}
