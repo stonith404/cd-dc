@@ -14,9 +14,13 @@ curl <host-of-ci-cd>/upgrade/<service> -X POST -H <api-key> --fail-with-body
 
 ### Install as Systemd service
 
-1. Copy the binary to `/opt/cd-dc`
-2. Copy the `config.yml` to `/opt/cd-dc` and modify it accordingly
-3. Create a systemd service file in `/etc/systemd/system/cd-dc.service`
+1. Build the binary
+   ```
+   go build -o build/cd-dc ./cmd
+   ```
+2. Copy the binary to `/opt/cd-dc`
+3. Copy the `config.yml` to `/opt/cd-dc` and modify it accordingly
+4. Create a systemd service file in `/etc/systemd/system/cd-dc.service`
 
    ```
    [Unit]
@@ -31,19 +35,19 @@ curl <host-of-ci-cd>/upgrade/<service> -X POST -H <api-key> --fail-with-body
    WantedBy=default.target
    ```
 
-4. Enable the service
+5. Enable the service
    ```
    sudo systemctl enable cd-dc
    ```
-5. Start the service
+6. Start the service
    ```
    sudo systemctl start cd-dc
    ```
-6. Check the status
+7. Check the status
    ```
    sudo systemctl status cd-dc
    ```
-7. Check the logs
+8. Check the logs
    ```
    sudo journalctl -u cd-dc
    ```
@@ -68,7 +72,7 @@ curl <host-of-ci-cd>/upgrade/<service> -X POST -H <api-key> --fail-with-body
 go run ./cmd
 ```
 
-### Build
+### Build for specific OS and architecture
 
 ```bash
 env GOOS=linux GOARCH=amd64 go build -ldflags "-w" -o build/cd-dc ./cmd
