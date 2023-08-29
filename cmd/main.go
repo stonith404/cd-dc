@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-)
 
-var runningJobs = []string{}
+	"eliasschneider.com/cd-dc/cmd/config"
+	"eliasschneider.com/cd-dc/cmd/docker"
+)
 
 func main() {
 	addr := ":1411"
@@ -24,14 +25,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.Header.Get("X-Api-Key") != GetApiKey() {
+	if r.Header.Get("X-Api-Key") != config.GetApiKey() {
 		httpResponse(http.StatusUnauthorized, "Unauthorized", &w)
 		return
 	}
 
 	serviceName := r.URL.Path[len("/upgrade/"):]
 
-	err := UpdateDockerComposeStack(serviceName)
+	err := docker.UpdateDockerComposeStack(serviceName)
 	if err == nil {
 		httpResponse(http.StatusOK, fmt.Sprintf("Service %s upgraded successfully", serviceName), &w)
 	} else {

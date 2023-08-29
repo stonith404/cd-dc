@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"log"
@@ -13,11 +13,12 @@ type Service struct {
 }
 
 type Config struct {
-	Services map[string]Service `yaml:"services"`
-	ApiKey   string             `yaml:"apiKey"`
+	Services             map[string]Service `yaml:"services"`
+	ApiKey               string             `yaml:"apiKey"`
+	NumberOfImagesToKeep int                `yaml:"numberOfImagesToKeep"`
 }
 
-func Get() Config {
+func get() Config {
 	data, err := os.ReadFile("config.yml")
 	if err != nil {
 		log.Fatal(err)
@@ -34,9 +35,17 @@ func Get() Config {
 }
 
 func GetApiKey() string {
-	return Get().ApiKey
+	return get().ApiKey
 }
 
 func GetServices() map[string]Service {
-	return Get().Services
+	return get().Services
+}
+
+func GetNumberOfImagesToKeep() int {
+	nuberOfImagesToKeep := get().NumberOfImagesToKeep
+	if nuberOfImagesToKeep == 0 {
+		return 1
+	}
+	return nuberOfImagesToKeep
 }

@@ -61,7 +61,7 @@ curl <host-of-ci-cd>/upgrade/<service> -X POST -H <api-key> --fail-with-body
    ```
 3. Restart the service
    ```
-   systemctl restart cd-dc
+   sudo systemctl restart cd-dc
    ```
 
 ## Development

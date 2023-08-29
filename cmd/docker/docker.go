@@ -1,4 +1,4 @@
-package main
+package docker
 
 import (
 	"bytes"
@@ -7,7 +7,11 @@ import (
 	"os/exec"
 	"slices"
 	"strings"
+
+	"eliasschneider.com/cd-dc/cmd/config"
 )
+
+var runningJobs = []string{}
 
 func UpdateDockerComposeStack(serviceName string) error {
 	alreadyUpdating := slices.Contains(runningJobs, serviceName)
@@ -20,7 +24,7 @@ func UpdateDockerComposeStack(serviceName string) error {
 	}()
 	var err error
 
-	services := GetServices()
+	services := config.GetServices()
 	service, exists := services[serviceName]
 	if !exists {
 		return errors.New("service not found")
@@ -46,35 +50,45 @@ func UpdateDockerComposeStack(serviceName string) error {
 		return err
 	}
 
+	log.Printf("Pruning old images for %s", serviceName)
+	err = PruneOldImages(service)
+	if err != nil {
+		return err
+	}
+
 	log.Printf("Finished updating %s", serviceName)
 
 	return err
 }
 
-func PullImages(service Service, name string) error {
+func PullImages(service config.Service, name string) error {
 	containersFormatted := strings.Join(service.Containers, " ")
-	err := runCommand("compose", "-f", service.Path, "pull", containersFormatted)
+	_, err := runCommand("docker", "compose", "-f", service.Path, "pull", containersFormatted)
 	return err
 }
 
-func RestartContainers(service Service, name string) error {
+func RestartContainers(service config.Service, name string) error {
 	containersFormatted := strings.Join(service.Containers, " ")
-	err := runCommand("compose", "-f", service.Path, "up", containersFormatted, "-d")
+	_, err := runCommand("docker", "compose", "-f", service.Path, "up", containersFormatted, "-d")
 	return err
 }
 
-func runCommand(command ...string) error {
+func runCommand(name string, command ...string) (string, error) {
 	// remove empty strings from command
 	command = slices.DeleteFunc(command, func(s string) bool {
 		return s == ""
 	})
 
-	cmd := exec.Command("docker", command...)
+	cmd := exec.Command(name, command...)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
+	var stdout bytes.Buffer
+	cmd.Stdout = &stdout
+
 	err := cmd.Run()
 	if err != nil {
-		return errors.New(stderr.String())
+		return "", errors.New(stderr.String())
 	}
-	return nil
+
+	return stdout.String(), nil
 }

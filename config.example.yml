@@ -8,3 +8,5 @@ services:
       - backend
 # Required: A random string to secure the API
 apiKey: randomString
+# Optional: The number of images to keep for each container. This can be used to roll back to a previous version.
+numberOfImagesToKeep: 2
