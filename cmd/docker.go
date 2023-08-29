@@ -51,7 +51,6 @@ func UpdateDockerComposeStack(serviceName string) error {
 	return err
 }
 
-
 func PullImages(service Service, name string) error {
 	containersFormatted := strings.Join(service.Containers, " ")
 	err := runCommand("compose", "-f", service.Path, "pull", containersFormatted)
@@ -64,9 +63,7 @@ func RestartContainers(service Service, name string) error {
 	return err
 }
 
-
 func runCommand(command ...string) error {
-
 	// remove empty strings from command
 	command = slices.DeleteFunc(command, func(s string) bool {
 		return s == ""

@@ -13,8 +13,8 @@ type Service struct {
 }
 
 type Config struct {
-	Services     map[string]Service `yaml:"services"`
-	ApiKey string             `yaml:"apiKey"`
+	Services map[string]Service `yaml:"services"`
+	ApiKey   string             `yaml:"apiKey"`
 }
 
 func Get() Config {
