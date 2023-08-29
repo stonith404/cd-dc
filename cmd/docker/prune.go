@@ -1,17 +1,20 @@
 package docker
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"slices"
 	"strings"
 
 	"eliasschneider.com/cd-dc/cmd/config"
+	"eliasschneider.com/cd-dc/cmd/web"
 )
 
 // Remove dangling images for a given image name.
-// We keep the newest image for rollbacking.
-func PruneOldImages(service config.Service) error {
+// We keep the newest images for rollbacking.
+func PruneOldImages(ctx context.Context, service config.Service) error {
+	request := ctx.Value("RequestContext").(*web.RequestContext)
+
 	imageNames, err := getDockerImageNamesOfService(service)
 	if err != nil {
 		return err
@@ -29,14 +32,14 @@ func PruneOldImages(service config.Service) error {
 		}
 
 		if len(imageIds) == 0 {
-			log.Printf("No dangling images found for %s", imageName)
+			request.Logger.Printf("No dangling images found for %s", imageName)
 			return nil
 		}
 		// Remove newest images from the list, so we keep the oldest images
-		imageIds = slices.Delete(imageIds, 0, config.GetNumberOfImagesToKeep()-1)
+		imageIdsToDelete := slices.Delete(imageIds, 0, config.GetNumberOfImagesToKeep()-1)
 
-		for _, imageId := range imageIds {
-			log.Printf("Removing dangling image %s", imageId)
+		for _, imageId := range imageIdsToDelete {
+			request.Logger.Printf("Removing dangling image %s", imageId)
 			_, err := runCommand("docker", "rmi", imageId)
 			if err != nil {
 				return fmt.Errorf("error removing image %s: %s", imageId, err.Error())
@@ -47,6 +50,7 @@ func PruneOldImages(service config.Service) error {
 	return nil
 }
 
+// Returns all the images names that are used by a service.
 func getDockerImageNamesOfService(service config.Service) ([]string, error) {
 
 	imageNames := []string{}

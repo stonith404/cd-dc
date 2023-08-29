@@ -2,7 +2,7 @@ services:
   your-service:
     # Required: Path to the docker-compose.yml file of the service
     path: /Users/ubuntu/your-service/docker-compose.yml
-    # Optional: If you want to update all containers in the service, you can leave out the containers key.
+    # Optional: If you want to upgrade all containers in the service, you can leave out the containers key.
     containers:
       - website
       - backend

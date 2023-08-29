@@ -18,15 +18,14 @@ type Config struct {
 	NumberOfImagesToKeep int                `yaml:"numberOfImagesToKeep"`
 }
 
+// Get the config from config.yml
 func get() Config {
 	data, err := os.ReadFile("config.yml")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// create a config struct and deserialize the data into that struct
 	var config Config
-
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		panic(err)
 	}

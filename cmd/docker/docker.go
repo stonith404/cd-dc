@@ -2,61 +2,67 @@ package docker
 
 import (
 	"bytes"
+	"context"
 	"errors"
-	"log"
 	"os/exec"
 	"slices"
 	"strings"
+	"time"
 
 	"eliasschneider.com/cd-dc/cmd/config"
+	"eliasschneider.com/cd-dc/cmd/web"
 )
 
 var runningJobs = []string{}
 
-func UpdateDockerComposeStack(serviceName string) error {
-	alreadyUpdating := slices.Contains(runningJobs, serviceName)
+func UpgradeDockerComposeStack(ctx context.Context) error {
+	request := ctx.Value("RequestContext").(*web.RequestContext)
+
+	alreadyUpdating := slices.Contains(runningJobs, request.ServiceName)
 	defer func() {
 		if !alreadyUpdating {
 			runningJobs = slices.DeleteFunc(runningJobs, func(s string) bool {
-				return s == serviceName
+				return s == request.ServiceName
 			})
 		}
 	}()
 	var err error
 
 	services := config.GetServices()
-	service, exists := services[serviceName]
+	service, exists := services[request.ServiceName]
 	if !exists {
 		return errors.New("service not found")
 	}
 
+	// If the service is already updating, wait 5 seconds and try again
 	if alreadyUpdating {
-		log.Printf("Already updating %s, skipping", serviceName)
-		return errors.New("already updating")
+		request.Logger.Print("Already updating service, waiting")
+		time.Sleep(5 * time.Second)
+		return UpgradeDockerComposeStack(ctx)
 	}
 
-	runningJobs = append(runningJobs, serviceName)
+	runningJobs = append(runningJobs, request.ServiceName)
 	if service.Path == "" {
-		log.Default().Printf("path is empty for service %s", serviceName)
+		return errors.New("service path not found")
 	}
 
-	log.Printf("Pulling images for %s", serviceName)
-	if err := PullImages(service, serviceName); err != nil {
+	request.Logger.Print("Pulling images")
+	if err := PullImages(service, request.ServiceName); err != nil {
 		return err
 	}
 
-	log.Printf("Recreating containers for %s", serviceName)
-	if err := RestartContainers(service, serviceName); err != nil {
+	request.Logger.Print("Recreating containers")
+	if err := RestartContainers(service, request.ServiceName); err != nil {
 		return err
 	}
 
-	log.Printf("Pruning old images for %s", serviceName)
-	err = PruneOldImages(service)
+	request.Logger.Print("Pruning old images")
+	err = PruneOldImages(ctx, service)
 	if err != nil {
 		return err
 	}
 
-	log.Printf("Finished updating %s", serviceName)
+	request.Logger.Print("Finished updating")
 
 	return err
 }
