@@ -15,7 +15,7 @@ curl <host-of-ci-cd>/upgrade/<service> -X POST -H <api-key> --fail-with-body
 ### Install as Systemd service
 
 1. Copy the binary to `/opt/cd-dc`
-2. Copy the `config.yml` to `/opt/cd-dc`
+2. Copy the `config.yml` to `/opt/cd-dc` and modify it accordingly
 3. Create a systemd service file in `/etc/systemd/system/cd-dc.service`
 
    ```
