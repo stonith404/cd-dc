@@ -26,20 +26,20 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodPost {
-		web.HttpResponse(http.StatusMethodNotAllowed, "Method not allowed", &w, ctx)
+		web.HttpResponse(ctx, http.StatusMethodNotAllowed, "Method not allowed", &w)
 		return
 	}
 
 	if r.Header.Get("X-Api-Key") != config.GetApiKey() {
-		web.HttpResponse(http.StatusUnauthorized, "Unauthorized", &w, ctx)
+		web.HttpResponse(ctx, http.StatusUnauthorized, "Unauthorized", &w)
 		return
 	}
 
 	err := docker.UpgradeDockerComposeStack(ctx)
 	if err == nil {
-		web.HttpResponse(http.StatusOK, fmt.Sprintf("Service %s upgraded successfully", serviceName), &w, ctx)
+		web.HttpResponse(ctx, http.StatusOK, fmt.Sprintf("Service %s upgraded successfully", serviceName), &w)
 	} else {
-		web.HttpResponse(http.StatusInternalServerError, "An error occured while upgrading your service. Check the server logs.", &w, ctx)
+		web.HttpResponse(ctx, http.StatusInternalServerError, "An error occured while upgrading your service. Check the server logs.", &w)
 		request.Logger.Printf("Error upgrading service %s", err.Error())
 		return
 	}

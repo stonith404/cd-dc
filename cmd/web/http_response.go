@@ -13,7 +13,7 @@ type HTTPResponse struct {
 	RequestID   string `json:"requestId"`
 }
 
-func HttpResponse(code int, message string, w *http.ResponseWriter, ctx context.Context) {
+func HttpResponse(ctx context.Context, code int, message string, w *http.ResponseWriter) {
 	request := ctx.Value("RequestContext").(RequestContext)
 
 	writer := *w
