@@ -10,7 +10,7 @@ import (
 
 func NewRequestContext(serviceName string, r *http.Request) context.Context {
 	requestId := generateRequestID()
-	return context.WithValue(context.Background(), "RequestContext", &RequestContext{
+	return context.WithValue(context.Background(), "RequestContext", RequestContext{
 		ServiceName: serviceName,
 		RequestID:   requestId,
 		Logger:      log.New(log.Writer(), fmt.Sprintf("[%s-%s] ", serviceName, requestId), log.LstdFlags),

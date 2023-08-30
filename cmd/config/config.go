@@ -43,7 +43,7 @@ func GetServices() map[string]Service {
 
 func GetNumberOfImagesToKeep() int {
 	nuberOfImagesToKeep := get().NumberOfImagesToKeep
-	if nuberOfImagesToKeep == 0 {
+	if nuberOfImagesToKeep <= 0 {
 		return 1
 	}
 	return nuberOfImagesToKeep

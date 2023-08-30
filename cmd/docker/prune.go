@@ -13,7 +13,7 @@ import (
 // Remove dangling images for a given image name.
 // We keep the newest images for rollbacking.
 func PruneOldImages(ctx context.Context, service config.Service) error {
-	request := ctx.Value("RequestContext").(*web.RequestContext)
+	request := ctx.Value("RequestContext").(web.RequestContext)
 
 	imageNames, err := getDockerImageNamesOfService(service)
 	if err != nil {

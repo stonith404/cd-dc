@@ -19,28 +19,27 @@ func main() {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 
+	serviceName := r.URL.Path[len("/upgrade/"):]
+	ctx := web.NewRequestContext(serviceName, r)
+	request := ctx.Value("RequestContext").(web.RequestContext)
+
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodPost {
-		web.HttpResponse(http.StatusMethodNotAllowed, "Method not allowed", &w)
+		web.HttpResponse(http.StatusMethodNotAllowed, "Method not allowed", &w, ctx)
 		return
 	}
 
 	if r.Header.Get("X-Api-Key") != config.GetApiKey() {
-		web.HttpResponse(http.StatusUnauthorized, "Unauthorized", &w)
+		web.HttpResponse(http.StatusUnauthorized, "Unauthorized", &w, ctx)
 		return
 	}
 
-	serviceName := r.URL.Path[len("/upgrade/"):]
-
-	ctx := web.NewRequestContext(serviceName, r)
-	request := ctx.Value("RequestContext").(*web.RequestContext)
-
 	err := docker.UpgradeDockerComposeStack(ctx)
 	if err == nil {
-		web.HttpResponse(http.StatusOK, fmt.Sprintf("Service %s upgraded successfully", serviceName), &w)
+		web.HttpResponse(http.StatusOK, fmt.Sprintf("Service %s upgraded successfully", serviceName), &w, ctx)
 	} else {
-		web.HttpResponse(http.StatusInternalServerError, "An error occured while upgrading your service. Check the server logs.", &w)
+		web.HttpResponse(http.StatusInternalServerError, "An error occured while upgrading your service. Check the server logs.", &w, ctx)
 		request.Logger.Printf("Error upgrading service %s", err.Error())
 		return
 	}

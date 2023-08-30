@@ -16,7 +16,7 @@ import (
 var runningJobs = []string{}
 
 func UpgradeDockerComposeStack(ctx context.Context) error {
-	request := ctx.Value("RequestContext").(*web.RequestContext)
+	request := ctx.Value("RequestContext").(web.RequestContext)
 
 	alreadyUpdating := slices.Contains(runningJobs, request.ServiceName)
 	defer func() {
