@@ -8,7 +8,7 @@ import (
 
 type HTTPResponse struct {
 	State       string `json:"state"`
-	Message     string `json:"error"`
+	Message     string `json:"message"`
 	ServiceName string `json:"serviceName"`
 	RequestID   string `json:"requestId"`
 }
