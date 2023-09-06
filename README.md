@@ -7,7 +7,7 @@ CD-DC (Continuous Deployment Docker Compose) is a simple service to continuously
 Send a post request to the `/upgrade/<service>` endpoint:
 
 ```bash
-curl <host-of-ci-cd>/upgrade/<service> -X POST -H <api-key> --fail-with-body
+curl <cd-dc-host>/upgrade/<service> -X POST -H <api-key> --fail-with-body
 ```
 
 ## Production Installation
@@ -75,5 +75,5 @@ go run ./cmd
 ### Build for specific OS and architecture
 
 ```bash
-env GOOS=linux GOARCH=amd64 go build -ldflags "-w" -o build/cd-dc ./cmd
+env GOOS=linux GOARCH=arm64 go build -ldflags "-w" -o build/cd-dc ./cmd
 ```
